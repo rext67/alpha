@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Alpha Clinic Appointment Scheduling</title>
+</head>
+<body>
+    <h1>Book an Appointment</h1>
+    <form id="appointmentForm">
+        <input type="text" id="patient_name" placeholder="Your Name" required><br>
+        <input type="text" id="doctor_name" placeholder="Doctor's Name" required><br>
+        <input type="date" id="appointment_date" required><br>
+        <input type="time" id="appointment_time" required><br>
+        <button type="submit">Book Appointment</button>
+    </form>
+
+    <h2>Upcoming Appointments</h2>
+    <ul id="appointmentsList"></ul>
+
+    <script>
+        const apiBase = 'https://alpha-b492.onrender.com';
+
+        document.getElementById('appointmentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                patient_name: document.getElementById('patient_name').value,
+                doctor_name: document.getElementById('doctor_name').value,
+                appointment_date: document.getElementById('appointment_date').value,
+                appointment_time: document.getElementById('appointment_time').value
+            };
+
+            const res = await fetch(`${apiBase}/appointments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await res.json();
+            alert(result.message);
+            loadAppointments();
+        });
+
+        async function loadAppointments() {
+            const res = await fetch(`${apiBase}/appointments`);
+            const data = await res.json();
+            const list = document.getElementById('appointmentsList');
+            list.innerHTML = '';
+            data.forEach(app => {
+                const item = document.createElement('li');
+                item.textContent = `${app.patient_name} with Dr. ${app.doctor_name} on ${app.appointment_date} at ${app.appointment_time}`;
+                list.appendChild(item);
+            });
+        }
+
+        loadAppointments();
+    </script>
+</body>
+</html>
