@@ -16,27 +16,28 @@ db_config = {
 def get_db_connection():
     return mysql.connector.connect(**db_config)
 
-@app.route('/')
-def index():
-    return "Clinic Appointment API running"
-
 @app.route('/appointments', methods=['POST'])
 def add_appointment():
-    data = request.json
-    patient_name = data.get('patient_name')
-    doctor_name = data.get('doctor_name')
-    date = data.get('date')
-    time = data.get('time')
+    try:
+        data = request.json
+        patient_name = data.get('patient_name')
+        doctor_name = data.get('doctor_name')
+        date = data.get('date')
+        time = data.get('time')
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    query = "INSERT INTO appointments (patient_name, doctor_name, date, time) VALUES (%s, %s, %s, %s)"
-    cursor.execute(query, (patient_name, doctor_name, date, time))
-    conn.commit()
-    cursor.close()
-    conn.close()
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        query = "INSERT INTO appointments (patient_name, doctor_name, appointment_date, appointment_time) VALUES (%s, %s, %s, %s)"
+        cursor.execute(query, (patient_name, doctor_name, date, time))
+        conn.commit()
+        cursor.close()
+        conn.close()
 
-    return jsonify({"message": "Appointment added successfully"}), 201
+        return jsonify({"message": "Appointment added successfully"}), 201
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)
